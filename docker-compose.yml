@@ -11,6 +11,7 @@ services:
     working_dir: /var/www/html
     volumes:
       - ./app:/var/www/html
+      - /var/www/html/vendor  
     networks:
       - notification-net
     depends_on:
