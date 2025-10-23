@@ -11,7 +11,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        
+        $this->app->singleton(TelegramProvider::class, function () {
+            $service = Service::where('name', 'telegram')->first();
+            return new TelegramProvider($service->config);
+        });
     }
 
     /**
