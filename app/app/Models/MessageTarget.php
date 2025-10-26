@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MessageTarget extends Model
 {
     protected $fillable = [
-        'message_id', 'service_id', 'external_channel', 'status', 'provider_response'
+        'message_id', 'service_id', 'recipient', 'status', 'provider_response'
     ];
 
     protected $casts = [

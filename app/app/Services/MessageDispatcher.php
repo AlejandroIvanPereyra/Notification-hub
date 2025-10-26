@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Services;
 
 use App\Factories\ProviderFactory;
@@ -12,28 +11,36 @@ class MessageDispatcher
     {
         $results = [];
 
+        $message->loadMissing('targets.service');
+
         foreach ($message->targets as $target) {
-            $service = $target->service; // relación MessageTarget->service()
+            $service = $target->service;
             try {
                 $provider = ProviderFactory::make($service);
                 $ok = $provider->send($target);
+
+                $target->update([
+                    'status' => $ok ? 'success' : 'failed',
+                    'provider_response' => ['success' => $ok],
+                ]);
+
                 $results[] = [
                     'target_id' => $target->id,
                     'service' => $service->name,
-                    'status' => $ok ? 'sent' : 'failed'
+                    'status' => $ok ? 'success' : 'failed',
                 ];
             } catch (\Throwable $e) {
+                $target->update([
+                    'status' => 'failed',
+                    'provider_response' => ['error' => $e->getMessage()],
+                ]);
+
                 $results[] = [
                     'target_id' => $target->id,
                     'service' => $service->name,
                     'status' => 'failed',
-                    'error' => $e->getMessage()
+                    'error' => $e->getMessage(),
                 ];
-                // actualizar target por si no lo hizo el provider
-                $target->update([
-                    'status' => 'failed',
-                    'provider_response' => ['exception' => $e->getMessage()],
-                ]);
             }
         }
 

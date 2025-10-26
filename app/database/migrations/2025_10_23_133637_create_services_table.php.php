@@ -11,21 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // Telegram, Slack, etc.
-            $table->string('description')->nullable();
-            $table->json('config')->nullable(); // aquí se guarda el token, webhook, etc.
+            $table->string('name')->unique();
+            $table->string('type')->comment('Tipo de integración: webhook, bot_api, graph_api, etc.');
+            $table->string('base_url')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
-}
+    }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('services'); 
+        Schema::dropIfExists('services');
     }
 };

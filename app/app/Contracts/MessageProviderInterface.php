@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Providers;
+namespace App\Contracts;
 
 use App\Models\MessageTarget;
 

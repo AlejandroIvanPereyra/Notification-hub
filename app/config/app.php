@@ -167,6 +167,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        // Custom Service Providers
+        App\Providers\SlackServiceProvider::class,
+        App\Providers\DiscordServiceProvider::class,
+        App\Providers\TelegramServiceProvider::class,
+
     ],
 
     /*

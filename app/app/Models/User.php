@@ -4,46 +4,59 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     title="User",
+ *     description="Modelo de usuario del sistema",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="username", type="string", example="ale123"),
+ *     @OA\Property(property="email", type="string", example="ale@example.com"),
+ *     @OA\Property(property="role_id", type="integer", example=2, nullable=true),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-10-25T12:34:56Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-10-25T12:34:56Z")
+ * )
+ */
 
-class User extends Authenticatable implements JWTSubject{
-    use HasFactory;
+class User extends Authenticatable implements JWTSubject
+{
+    use HasFactory; 
 
-    protected $fillable = ['username', 'password', 'role_id'];
+    protected $fillable = ['username', 'email', 'password', 'role_id'];
+    protected $hidden = ['password', 'remember_token'];
 
-    protected $hidden = ['password'];
-
-    public function role() {
+    public function role()
+    {
         return $this->belongsTo(Role::class);
     }
 
-    // Encriptar password automáticamente
-    public function setPasswordAttribute($value) {
+    public function setPasswordAttribute($value)
+    {
         $this->attributes['password'] = Hash::make($value);
     }
 
-    /**
- * Get the identifier that will be stored in the subject claim of the JWT.
-    */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     */
     public function getJWTCustomClaims()
     {
         return [];
     }
 
-
-    public function getAuthIdentifierName()
+    public function isAdmin(): bool
     {
-        return 'username';
+        return $this->role === 'Admin'; // o según tu implementación
     }
 }
-

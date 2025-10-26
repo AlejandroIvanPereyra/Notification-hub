@@ -1,19 +1,23 @@
 <?php
+
 namespace App\Factories;
 
 use App\Contracts\MessageProviderInterface;
 use App\Models\Service;
-use App\Providers\Messaging\TelegramProvider;
 
 class ProviderFactory
 {
+    /**
+     * Obtiene un provider registrado en el Service Container.
+     */
     public static function make(Service $service): MessageProviderInterface
     {
-        $config = $service->config;
+        $bindingKey = 'provider.' . strtolower($service->name);
 
-        return match (strtolower($service->name)) {
-            'telegram' => new TelegramProvider($config),
-            default => throw new \Exception("Provider {$service->name} no soportado"),
-        };
+        if (!app()->bound($bindingKey)) {
+            throw new \Exception("Provider [{$service->name}] no está registrado en el contenedor");
+        }
+
+        return app($bindingKey);
     }
 }

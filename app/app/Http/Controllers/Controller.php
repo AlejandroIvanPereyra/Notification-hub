@@ -2,10 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
 /**
- * @OA\Info(title="Notification Hub API", version="1.0")
- *
+ * @OA\Info(
+ *     title="Notification Hub API",
+ *     version="1.0",
+ *     description="API para enviar notificaciones a través de diferentes servicios"
+ * )
+
+
  * @OA\SecurityScheme(
  *     securityScheme="bearerAuth",
  *     type="http",
@@ -13,7 +22,9 @@ namespace App\Http\Controllers;
  *     bearerFormat="JWT"
  * )
  */
-abstract class Controller
+
+
+abstract class Controller extends BaseController
 {
-    //
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 }

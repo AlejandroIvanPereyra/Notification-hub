@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Providers\Messaging\TelegramProvider;
+use App\Models\Service;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,8 +14,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         
-        $this->app->singleton(TelegramProvider::class, function () {
-            $service = Service::where('name', 'telegram')->first();
+        $this->app->singleton('provider.telegram', function () {
+            $service = Service::where('name', 'Telegram')->first();
             return new TelegramProvider($service->config);
         });
     }

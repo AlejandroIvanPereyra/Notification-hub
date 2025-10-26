@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('message_id')->constrained()->onDelete('cascade');
             $table->foreignId('service_id')->constrained()->onDelete('cascade');
-            $table->string('external_channel')->nullable(); // canal/chat ID destino
+            $table->string('recipient')->nullable(); // canal/chat ID destino
             $table->enum('status', ['pending', 'success', 'failed'])->default('pending');
             $table->json('provider_response')->nullable(); // guarda JSON del proveedor
             $table->timestamps();
