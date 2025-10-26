@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,6 @@ class AuthController extends Controller
      *             @OA\Property(property="username", type="string", example="ale123"),
      *             @OA\Property(property="email", type="string", format="email", example="ale@example.com"),
      *             @OA\Property(property="password", type="string", format="password", example="123456"),
-     *             @OA\Property(property="role_id", type="integer", example=1)
      *         )
      *     ),
      *     @OA\Response(
@@ -48,18 +48,23 @@ class AuthController extends Controller
             'username' => 'required|string|max:255|unique:users',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
-            'role_id'  => 'nullable|integer|exists:roles,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // Consulto el role de 'User'
+        $userRole = Role::where('name', 'User')->first();
+        if (!$userRole) {
+            return response()->json(['error' => 'User role not found'], 500);
+        }
+
         $user = User::create([
             'username' => $request->username,
             'email'    => $request->email,
             'password' => $request->password, // se hashea automáticamente en el modelo
-            'role_id'  => $request->role_id,
+            'role_id'  => $userRole->id,
         ]);
 
         return response()->json(['message' => 'User registered successfully', 'user' => $user], 201);

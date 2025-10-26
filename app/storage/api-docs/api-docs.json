@@ -38,10 +38,6 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "123456"
-                                    },
-                                    "role_id": {
-                                        "type": "integer",
-                                        "example": 1
                                     }
                                 },
                                 "type": "object"
@@ -268,20 +264,17 @@
                                 ],
                                 "properties": {
                                     "content": {
-                                        "type": "string",
-                                        "example": "¡Hola desde Notification Hub!"
+                                        "type": "string"
                                     },
                                     "targets": {
                                         "type": "array",
                                         "items": {
                                             "properties": {
                                                 "service": {
-                                                    "type": "string",
-                                                    "example": "telegram"
+                                                    "type": "string"
                                                 },
                                                 "recipient": {
-                                                    "type": "string",
-                                                    "example": "123456789"
+                                                    "type": "string"
                                                 }
                                             },
                                             "type": "object"
@@ -289,6 +282,23 @@
                                     }
                                 },
                                 "type": "object"
+                            },
+                            "example": {
+                                "content": "¡Hola desde Notification Hub!",
+                                "targets": [
+                                    {
+                                        "service": "Telegram",
+                                        "recipient": "6652156621"
+                                    },
+                                    {
+                                        "service": "Slack",
+                                        "recipient": "https://hooks.slack.com/services/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"
+                                    },
+                                    {
+                                        "service": "Discord",
+                                        "recipient": "https://discord.com/api/webhooks/1431766030090375198/ixm2sQhbs3VtLpe_cuz4-JmzHLOhY3fBQ_hIs4DPA-xfYO8C6UB24DckNu_NTSQHZVlb"
+                                    }
+                                ]
                             }
                         }
                     }
@@ -322,6 +332,195 @@
                     },
                     "500": {
                         "description": "Error interno al enviar el mensaje"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/messages": {
+            "get": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Lista los mensajes enviados por el usuario autenticado o por todos los usuarios si es administrador",
+                "operationId": "8752b0e7b0592bf322685191dbbdfbd6",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filtra los mensajes por estado del envío (por ejemplo: sent, failed, pending)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "sent"
+                        }
+                    },
+                    {
+                        "name": "service",
+                        "in": "query",
+                        "description": "Filtra los mensajes por nombre del servicio (por ejemplo: telegram, slack, discord)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "telegram"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "description": "Fecha inicial para filtrar los mensajes (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-10-01"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "description": "Fecha final para filtrar los mensajes (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2025-10-26"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Listado de mensajes obtenidos correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "content": {
+                                                "type": "string",
+                                                "example": "¡Hola desde Notification Hub!"
+                                            },
+                                            "user_id": {
+                                                "type": "integer",
+                                                "example": 5
+                                            },
+                                            "created_at": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2025-10-25T14:30:00Z"
+                                            },
+                                            "targets": {
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 12
+                                                        },
+                                                        "recipient": {
+                                                            "type": "string",
+                                                            "example": "123456789"
+                                                        },
+                                                        "status": {
+                                                            "type": "string",
+                                                            "example": "sent"
+                                                        },
+                                                        "service": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "integer",
+                                                                    "example": 2
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "telegram"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token inválido o no autenticado"
+                    },
+                    "500": {
+                        "description": "Error interno al obtener los mensajes"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/metrics": {
+            "get": {
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Obtiene las métricas diarias de envío de mensajes por usuario",
+                "description": "Devuelve la cantidad de mensajes enviados hoy por cada usuario y cuántos puede enviar antes de alcanzar el límite diario (100 mensajes).",
+                "operationId": "7ccef6ae9f879cae180ccd8fee1f1245",
+                "responses": {
+                    "200": {
+                        "description": "Listado de métricas diarias por usuario",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "username": {
+                                                "type": "string",
+                                                "example": "juanperez"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "example": "juan@example.com"
+                                            },
+                                            "messages_sent_today": {
+                                                "type": "integer",
+                                                "example": 23
+                                            },
+                                            "remaining_messages": {
+                                                "type": "integer",
+                                                "example": 77
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token inválido o no autenticado"
+                    },
+                    "500": {
+                        "description": "Error interno del servidor"
                     }
                 },
                 "security": [
@@ -385,6 +584,10 @@
         {
             "name": "Messages",
             "description": "Endpoints para el envío y gestión de mensajes."
+        },
+        {
+            "name": "Metrics",
+            "description": "Metrics"
         }
     ]
 }
