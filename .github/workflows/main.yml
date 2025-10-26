@@ -1,57 +1,42 @@
 name: Laravel CI/CD
 
-# Se ejecuta en cada push a main (puedes agregar más ramas si quieres)
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  # Job: Tests
   test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: notification_hub
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: secret
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-      redis:
-        image: redis:alpine
-        ports:
-          - 6379:6379
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
-          extensions: pdo, pdo_pgsql, zip
 
-      - name: Install Composer dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
+      - name: Install dependencies
+        run: |
+          cd app
+          composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy .env
-        run: cp .env.example .env
+        run: |
+          cp app/.env.example app/.env
 
       - name: Generate app key
-        run: php artisan key:generate
-
-      - name: Run migrations
-        run: php artisan migrate --force
+        run: |
+          cd app
+          php artisan key:generate
 
       - name: Run tests
-        run: php artisan test
+        run: |
+          cd app
+          php artisan test
+
 
   # Job: Build Docker image
   build:
