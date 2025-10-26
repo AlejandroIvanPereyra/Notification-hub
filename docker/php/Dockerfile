@@ -5,7 +5,8 @@ FROM php:8.2-fpm
 RUN apt-get update && apt-get install -y \
     git curl libpq-dev libzip-dev unzip zip \
     && docker-php-ext-install pdo pdo_pgsql zip \
-    && docker-php-ext-enable pdo_pgsql
+    && docker-php-ext-enable pdo_pgsql \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -17,22 +18,31 @@ WORKDIR /var/www/html
 COPY ./app/composer.json ./app/composer.lock ./
 
 # Instalar dependencias de PHP
-RUN composer install --no-scripts --no-autoloader
+RUN composer install --prefer-dist --no-scripts --no-autoloader
 
 # Copiar el código del proyecto
-COPY ./app ./
+COPY ./app ./ 
 
-# Ejecutar autoload
+# Generar autoload optimizado
 RUN composer dump-autoload --optimize
 
-# Asignar permisos
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Asignar permisos a storage y bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Exponer puerto interno PHP-FPM
 EXPOSE 9000
 
-CMD ["php-fpm"]
+# Etapa adicional para deploy con Nginx
+# Instalar Nginx
+RUN apt-get update && apt-get install -y nginx
 
-# Asegurar permisos durante el runtime
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Copiar configuración Nginx
+COPY ./docker/nginx/default.conf /etc/nginx/sites-available/default
+
+# Exponer puerto HTTP
+EXPOSE 80
+
+# CMD que inicie PHP-FPM y Nginx
+CMD service nginx start && php-fpm
 

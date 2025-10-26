@@ -9,8 +9,8 @@ services:
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
-      - ./app:/var/www/html
-      - /var/www/html/vendor  
+      - ./app:/var/www/html       # Código fuente
+      - vendor_data:/var/www/html/vendor  # Vendor persistente
     networks:
       - notification-net
     depends_on:
@@ -58,25 +58,10 @@ services:
     networks:
       - notification-net
 
-  # Worker (para queue:work)
-  worker:
-    build:
-      context: .
-      dockerfile: docker/php/Dockerfile
-    container_name: notification-worker
-    restart: unless-stopped
-    working_dir: /var/www/html
-    command: php artisan queue:work redis --sleep=3 --tries=3
-    volumes:
-      - ./app:/var/www/html
-    depends_on:
-      - redis
-      - db
-    networks:
-      - notification-net
-
+# Volúmenes persistentes
 volumes:
   db_data:
+  vendor_data:
 
 networks:
   notification-net:
