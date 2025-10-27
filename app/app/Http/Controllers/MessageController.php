@@ -147,9 +147,9 @@ class MessageController extends Controller
      *     @OA\Parameter(
      *         name="status",
      *         in="query",
-     *         description="Filtra los mensajes por estado del envío (por ejemplo: sent, failed, pending)",
+     *         description="Filtra los mensajes por estado del envío (por ejemplo: success, failed, pending)",
      *         required=false,
-     *         @OA\Schema(type="string", example="sent")
+     *         @OA\Schema(type="string", example="success")
      *     ),
      *     @OA\Parameter(
      *         name="service",
@@ -188,7 +188,7 @@ class MessageController extends Controller
      *                     @OA\Items(
      *                         @OA\Property(property="id", type="integer", example=12),
      *                         @OA\Property(property="recipient", type="string", example="123456789"),
-     *                         @OA\Property(property="status", type="string", example="sent"),
+     *                         @OA\Property(property="status", type="string", example="success"),
      *                         @OA\Property(
      *                             property="service",
      *                             type="object",
@@ -207,39 +207,41 @@ class MessageController extends Controller
     public function listMessages(Request $request)
     {
         $user = auth()->user();
+        $query = Message::query();
 
-        $query = \App\Models\Message::query();
-
-        // Admin puede ver todo, usuario solo sus mensajes
         if (!$user->isAdmin()) {
             $query->where('user_id', $user->id);
         }
 
-        // Filtros opcionales
-        if ($request->has('status')) {
-            $query->whereHas('targets', function($q) use ($request) {
-                $q->where('status', $request->status);
-            });
-        }
-
-        if ($request->has('service')) {
-            $query->whereHas('targets.service', function($q) use ($request) {
-                $q->where('name', $request->service);
-            });
-        }
-
-        if ($request->has('from')) {
+        // Filtros de fecha
+        if ($request->filled('from')) {
             $query->whereDate('created_at', '>=', $request->from);
         }
 
-        if ($request->has('to')) {
+        if ($request->filled('to')) {
             $query->whereDate('created_at', '<=', $request->to);
         }
+
+        // Filtros relacionados
+        $query->when($request->filled('status') || $request->filled('service'), function ($q) use ($request) {
+            $q->whereHas('targets', function ($tq) use ($request) {
+                if ($request->filled('status')) {
+                    $tq->where('status', $request->status);
+                }
+
+                if ($request->filled('service')) {
+                    $tq->whereHas('service', function ($sq) use ($request) {
+                        $sq->whereRaw('LOWER(name) = ?', [strtolower($request->service)]);
+                    });
+                }
+            });
+        });
 
         $messages = $query->with('targets.service')->get();
 
         return response()->json($messages);
     }
+
 
 
 }
