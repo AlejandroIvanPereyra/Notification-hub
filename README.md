@@ -9,7 +9,7 @@ es un backend de REST API que permite a los usuarios enviar mensajes a distintos
 
 * PHP 8+ con Laravel 10
 * PostgreSQL como base de datos
-* Redis para caching y límites diarios
+* Redis para caching
 * Nginx como servidor web
 * Docker y Docker Compose para orquestación de contenedores
 
