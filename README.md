@@ -7,7 +7,7 @@ es un backend de REST API que permite a los usuarios enviar mensajes a distintos
 
 ## Tecnologías utilizadas
 
-* PHP 8+ con Laravel 10
+* PHP 8+ con Laravel 12
 * PostgreSQL como base de datos
 * Redis para caching
 * Nginx como servidor web
