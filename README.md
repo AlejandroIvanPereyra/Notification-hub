@@ -64,7 +64,7 @@ GET /api/metrics
 Para su uso y prueba el proyecto se encuentra documentado con swagger, para acceder a la documentacion utilizar el endpoint /api/documentation
 
 ---
-
-## Licencia
-
-* MIT License
+## Test
+Estan cubiertas por pruebas las  clases MessageController y MessageDispatcher como parte principal de la logica de negocio de la aplicacion
+Para correr los test:
+ *docker compose exec app bash php artisan test
