@@ -48,7 +48,8 @@ class MetricsController extends Controller
         $metrics = User::withCount(['messages as messages_sent_today' => function ($query) use ($today) {
             $query->whereDate('created_at', '>=', $today);
         }])->get()->map(function ($user) {
-            $user->remaining_messages = max(0, 100 - $user->messages_sent_today); // Límite diario
+            $limit = (int) env('DAILY_MESSAGE_LIMIT', 100);
+            $user->remaining_messages = max(0, $limit - $user->messages_sent_today);
             return $user;
         });
 

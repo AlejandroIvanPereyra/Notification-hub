@@ -9,7 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DailyMessageLimit
 {
-    protected int $limit = 100; // máximo por día
+
+
+    public function __construct()
+    {
+        $this->limit = env('DAILY_MESSAGE_LIMIT', 100); // Límite por defecto 100
+    }
 
     public function handle(Request $request, Closure $next): Response
     {
